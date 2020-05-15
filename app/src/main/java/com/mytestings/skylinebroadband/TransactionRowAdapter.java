@@ -40,7 +40,7 @@ public class TransactionRowAdapter extends ListAdapter {
 
 
 
-            Log.d("inhere", transactionEntity.getDatePaid());
+         //   Log.d("inhere", transactionEntity.getDatePaid());
             ((viewholder) (holder)).amountPaid.setText(String.valueOf(transactionEntity.getAmountPaid()));
             ((viewholder) (holder)).datePaid.setText(transactionEntity.getDatePaid());
 

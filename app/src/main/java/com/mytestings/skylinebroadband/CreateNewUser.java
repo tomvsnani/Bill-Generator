@@ -87,9 +87,11 @@ public class CreateNewUser extends AppCompatActivity {
                             mainViewModel.insert(entity);
                             Long id = mainViewModel.getEntityid();
                             entity.setId(id);
-                            mainViewModel.setVlueinFirebase(entity, "insert");
-                            if (id != null)
+
+                            if (id != null) {
+                                mainViewModel.setVlueinFirebase(entity, "insert");
                                 Log.d("entityid", String.valueOf(id));
+                            }
                             finish();
                         }
                     });

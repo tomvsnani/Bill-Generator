@@ -29,6 +29,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -82,33 +83,16 @@ public class MainActivity extends AppCompatActivity {
 
         if (settings.getBoolean("my_first_time", true)) {
             createAlarm();
-            databaseReference.addChildEventListener(new ChildEventListener() {
+
+            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    Log.d("datasnapshotchild",dataSnapshot.toString());
-                    Log.d("datasnapshotchild11",dataSnapshot.getChildren().toString());
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                       Entity entity= (Entity) dataSnapshot.getValue(Entity.class);
-                       mainViewModel.insert(entity);
-
+                for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()) {
+                    Log.d("entityiddd", String.valueOf(dataSnapshot1.getValue()));
+                    Entity entity = dataSnapshot1.getValue(Entity.class);
+                    mainViewModel.insert(entity);
                 }
-
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
-                        Entity entity= (Entity) dataSnapshot1.getValue();
-                        mainViewModel.update(entity);
-                    }
-                }
-
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-                }
-
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
                 }
 
                 @Override

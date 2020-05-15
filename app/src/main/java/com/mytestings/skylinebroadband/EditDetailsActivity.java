@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,6 +38,11 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -79,7 +85,7 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
         phnNum = findViewById(R.id.newphnNumber);
         due = findViewById(R.id.newDue);
         lastPaidOn = findViewById(R.id.newAmountPaidDate);
-        frameLayout=findViewById(R.id.container);
+        frameLayout = findViewById(R.id.container);
         editDue = findViewById(R.id.editDue);
         edithNum = findViewById(R.id.editHouseNum);
         editmonthlyfee = findViewById(R.id.editMonthlyfee);
@@ -116,12 +122,35 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
         lastPaidOn.setText(String.valueOf(intentlastPaidOn));
         monthlyfee.setText(String.valueOf(monthlyFee));
         createdDate.setText(account_CreatedOn);
+        SharedPreferences settings = getSharedPreferences("transactions", MODE_PRIVATE);
+        if(settings.getBoolean(entity.getHouseNumber(),true)) {
+            FirebaseDatabase.getInstance().getReference("transactions").child(entity.getFirebaseReferenceKey())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+                            for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                                Log.d("datasnapshott", dataSnapshot1.toString());
+                                TransactionEntity transactionEntity = dataSnapshot1.getValue(TransactionEntity.class);
+                                mainViewModel.insertinTransactionEntity(transactionEntity);
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+        }
+        settings.edit().putBoolean(entity.getHouseNumber(),false).apply();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
+
         editPhnNUm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -166,9 +195,37 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
         viewTransactions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(EditDetailsActivity.this,DialogFragmentt.class);
-                intent.putExtra("param1",entity.getHouseNumber());
-                startActivity(intent);
+//                Intent intent=new Intent(EditDetailsActivity.this,DialogFragmentt.class);
+//                intent.putExtra("param1",entity.getHouseNumber());
+//                startActivity(intent);
+
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(EditDetailsActivity.this);
+                View view = getLayoutInflater().inflate(R.layout.transactionlayout, null);
+                builder.setView(view);
+                final RecyclerView recyclerView = view.findViewById(R.id.transactionrecyclerview);
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(EditDetailsActivity.this, RecyclerView.VERTICAL, false);
+                transactionRowAdapter = new TransactionRowAdapter();
+                recyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.setHasFixedSize(true);
+                Log.d("hellok", "1");
+
+
+                mainViewModel.getFullTransactionData(entity.getHouseNumber(), entity.getPhone_number()).observeForever(new Observer<List<TransactionEntity>>() {
+                    @Override
+                    public void onChanged(List<TransactionEntity> transactionEntities) {
+                        Log.d("hellok", "2");
+                        if (transactionEntities.size() > 0) {
+                            recyclerView.setAdapter(transactionRowAdapter);
+                            transactionRowAdapter.submitList(transactionEntities);
+
+                        }
+                    }
+                });
+
+
+                builder.show();
+
 
             }
         });
@@ -240,6 +297,12 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
                             transactionEntity.setHnum(entity.getHouseNumber());
                             transactionEntity.setPhoneNumber(entity.getPhone_number());
                             mainViewModel.insertinTransactionEntity(transactionEntity);
+                            FirebaseDatabase.getInstance().getReference("transactions").child(entity.getFirebaseReferenceKey())
+                                    .push().setValue(transactionEntity);
+//                           Log.d("transactionnn",key);
+//                            FirebaseDatabase.getInstance().getReference("Users").child(entity.getFirebaseReferenceKey())
+//                                    .child("transaction").child(key).setValue(transactionEntity);
+
 
                             alertDialog.dismiss();
                             break;

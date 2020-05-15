@@ -17,6 +17,7 @@
 
         </activity>
         <activity android:name=".DialogFragmentt"/>
+
         <service android:name=".Receiver$CountDaysService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             />
