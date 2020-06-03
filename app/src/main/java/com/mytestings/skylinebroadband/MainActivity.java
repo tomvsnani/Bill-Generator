@@ -13,8 +13,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -31,8 +34,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import Database.Entity;
@@ -68,14 +74,15 @@ public class MainActivity extends AppCompatActivity {
         dueUsersRadioButton = findViewById(R.id.userswithDue);
         radioGroup = findViewById(R.id.radioGroup);
         setSupportActionBar(toolbar);
-        firebaseDatabase=FirebaseDatabase.getInstance();
-        databaseReference=firebaseDatabase.getReference("Users");
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference("Users");
         mainViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
         linearLayoutManager = new LinearLayoutManager(getApplicationContext(),
                 RecyclerView.VERTICAL, false);
         adapter = new Adapter(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(adapter);
+
 
         final String PREFS_NAME = "MyPrefsFile";
 
@@ -88,11 +95,11 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()) {
-                    Log.d("entityiddd", String.valueOf(dataSnapshot1.getValue()));
-                    Entity entity = dataSnapshot1.getValue(Entity.class);
-                    mainViewModel.insert(entity);
-                }
+                    for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                        Log.d("entityiddd", String.valueOf(dataSnapshot1.getValue()));
+                        Entity entity = dataSnapshot1.getValue(Entity.class);
+                        mainViewModel.insert(entity);
+                    }
                 }
 
                 @Override
@@ -106,18 +113,18 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void createAlarm() {
+    public void createAlarm() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Calendar alaramcalender = Calendar.getInstance();
-        alaramcalender.set(Calendar.HOUR_OF_DAY, 12);
+        alaramcalender.setTimeInMillis(System.currentTimeMillis());
+        alaramcalender.set(Calendar.HOUR_OF_DAY, 24);
         Intent intent = new Intent(this, Receiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
+        intent.putExtra("hello", "start");
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alaramcalender.set(Calendar.MINUTE, 0);
-        alaramcalender.set(Calendar.AM_PM, Calendar.AM);
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, alaramcalender.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY, pendingIntent);
     }
-
 
 
     @Override
@@ -155,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     private void populateWithTotalUsers() {
         mainViewModel.getFullData().observe(MainActivity.this, new Observer<List<Entity>>() {
             @Override
@@ -164,8 +170,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
 
 
     private void getTextFromEditTextToSearch(final List<Entity> entities) {
@@ -186,7 +190,10 @@ public class MainActivity extends AppCompatActivity {
 
                 for (Entity e : entities) {
 
-                    if (e.getName().toLowerCase().contains(s.toString().toLowerCase())) {
+                    //     Log.d("phonenn", String.valueOf(e.getPhone_number().compareTo(Long.valueOf(s.toString()))==0));
+                    if (e.getName().toLowerCase().contains(s.toString().toLowerCase()) ||
+                            e.getPhone_number().toString().contains(s.toString())
+                    ) {
                         Log.d("searchdd", s.toString());
                         searchList.add(e);
 
@@ -197,5 +204,43 @@ public class MainActivity extends AppCompatActivity {
                 searchList.clear();
             }
         });
+    }
+
+    public static class Rebootreceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("hello", "yes1");
+            if (intent.getAction() != null && intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
+
+
+                Log.d("helloinboot", "yes");
+                Calendar alaramcalender = Calendar.getInstance();
+                AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+
+                alaramcalender.setTimeInMillis(System.currentTimeMillis());
+                alaramcalender.set(Calendar.HOUR_OF_DAY, 24);
+
+                Intent intent1 = new Intent(context, Receiver.class);
+                intent1.putExtra("hello", "bootc");
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 5, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
+                alaramcalender.set(Calendar.MINUTE, 0);
+
+
+                SharedPreferences sharedPreferences = context.getSharedPreferences("alarams", MODE_PRIVATE);
+
+
+                String string = new SimpleDateFormat("dd:MM:yyyy").format(Calendar.getInstance().getTimeInMillis());
+                Log.d("hello", String.valueOf(sharedPreferences.contains(string)));
+                Log.d("hello", String.valueOf(sharedPreferences.getAll()));
+                if (!sharedPreferences.getBoolean(string, false)) {
+                    Intent intent2 = new Intent(context, Receiver.class);
+                    intent2.putExtra("hello", "boot");
+                    context.sendBroadcast(intent2);
+                }
+                alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, alaramcalender.getTimeInMillis(),
+                        AlarmManager.INTERVAL_DAY, pendingIntent);
+            }
+        }
     }
 }

@@ -144,6 +144,11 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
                     });
         }
         settings.edit().putBoolean(entity.getHouseNumber(),false).apply();
+
+
+
+
+
     }
 
     @Override
@@ -238,12 +243,16 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
         View v = getLayoutInflater().inflate(R.layout.dialoglayout, null);
         builder.setView(v);
         editText = (EditText) v.findViewById(R.id.editTextDialog);
+        changeInputTypeofEditText(type, editText);
         final Button dismiss = v.findViewById(R.id.dismiss);
         Button change = v.findViewById(R.id.changeDialog);
         builder.setCancelable(false);
-        editText.requestFocus();
 
-        changeInputTypeofEditText(type, editText);
+
+                editText.requestFocus();
+
+
+
         try {
             Thread.sleep(100);
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);

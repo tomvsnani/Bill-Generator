@@ -99,7 +99,7 @@ class Repository {
            @Override
            public void run() {
                entityId = skyDatabase.dao().insert(entity);
-               setEntityId(entityId);
+             setEntityId(entityId);
            }
        });
 

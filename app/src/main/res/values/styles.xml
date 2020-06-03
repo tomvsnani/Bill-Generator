@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
+        <item name="fontFamily">@font/donegal_one</item>
     </style>
     <style name="alert" parent="Theme.AppCompat.DialogWhenLarge"/>
 

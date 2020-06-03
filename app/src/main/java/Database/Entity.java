@@ -7,6 +7,16 @@ import androidx.room.PrimaryKey;
 @androidx.room.Entity
 public class Entity {
 
+    private String last_updated_on="";
+
+    public String getLast_updated_on() {
+        return last_updated_on;
+    }
+
+    public void setLast_updated_on(String last_updated_on) {
+        this.last_updated_on = last_updated_on;
+    }
+
     public static DiffUtil.ItemCallback<Entity> diff = new DiffUtil.ItemCallback<Entity>() {
         @Override
         public boolean areItemsTheSame(@NonNull Entity oldItem, @NonNull Entity newItem) {
