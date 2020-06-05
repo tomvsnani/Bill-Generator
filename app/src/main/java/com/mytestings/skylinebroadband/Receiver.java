@@ -55,6 +55,8 @@ public class Receiver extends BroadcastReceiver {
         List<Entity> list;
         String dueDate;
         int dueAmount;
+        long compareDay = 0;
+        int daysToIterate = 0;
 
         private void updateEntity(final Entity entity) {
             Thread thread = new Thread(new Runnable() {
@@ -95,43 +97,57 @@ public class Receiver extends BroadcastReceiver {
 
 
                 list = skyDatabase.dao().getTotaldataNoLiveData();
+                if (days == 0) {
+                    compareDay = Integer.valueOf(new SimpleDateFormat("dd")
+                            .format(Calendar.getInstance().getTimeInMillis()));
+                    daysToIterate = daysToIterate + 1;
+                }
 
-              //  Log.d("formattsize", String.valueOf(list.size()));
+
+                //  Log.d("formattsize", String.valueOf(list.size()));
                 if (list.size() > 0) {
                     for (Entity entity : list) {
+                        Log.d("alaramfired", lastFired);
+                        if (days > 0) {
+                            Log.d("alaramfired", lastFired);
+                            compareDay = lastFiredDay + 1;
+                            Log.d("alaramfired", lastFired + " " + compareDay);
+                            daysToIterate = days.intValue();
+                        }
+                        dueDate = entity.getAccount_created_on();
+                        dueAmount = entity.getAmountDue();
+
+
+                        Date date = new SimpleDateFormat("dd : MM : yyyy").parse(dueDate);
+                        // int month = Integer.parseInt(new SimpleDateFormat("MM").format(date));
+                        int day = Integer.parseInt(new SimpleDateFormat("dd").format(date));
+                        //int year = Integer.parseInt(new SimpleDateFormat("yyyy").format(date));
                         sharedPreferences.edit().putString("lastFired", string).apply();
-                        for (int i = 0; i <=days; i++, lastFiredDay++) {
+                        for (int i = 0; i < daysToIterate; i++) {
 
-                            dueDate = entity.getAccount_created_on();
-                            dueAmount = entity.getAmountDue();
-                            try {
-                                Date date = new SimpleDateFormat("dd : MM : yyyy").parse(dueDate);
-                               // int month = Integer.parseInt(new SimpleDateFormat("MM").format(date));
-                                int day = Integer.parseInt(new SimpleDateFormat("dd").format(date));
-                                //int year = Integer.parseInt(new SimpleDateFormat("yyyy").format(date));
+                            Log.d("alaramentered", String.valueOf(compareDay) + "  " + days);
 
-                                if (entity.getAmountDue() != 0 && day ==
-                                        lastFiredDay) {
+                            if (entity.getAmountDue() != 0 && day ==
+                                    compareDay) {
 
-                                    dueAmount = dueAmount + entity.getNetPayablePrice();
-                                    entity.setAmountDue(dueAmount);
-                                    entity.setLast_updated_on(string);
-                                    Log.d("alaramentered", String.valueOf(dueAmount));
-                                    updateEntity(entity);
-                                    FirebaseDatabase.getInstance().getReference("Users")
-                                            .child(entity.getFirebaseReferenceKey()).setValue(entity);
+                                dueAmount = dueAmount + entity.getNetPayablePrice();
 
-                                } //else stopSelf();
-                                Log.d("formatt", String.valueOf(entity.getId()) + "  " + list.get(list.size() - 1).getId());
+                                entity.setAmountDue(dueAmount);
+                                entity.setLast_updated_on(string);
+                                Log.d("alaramenteredd", String.valueOf(dueAmount));
+                                updateEntity(entity);
+                                FirebaseDatabase.getInstance().getReference("Users")
+                                        .child(entity.getFirebaseReferenceKey()).setValue(entity);
 
-                                if (entity.getId().compareTo(Long.valueOf(list.get(list.size() - 1).getId())) == 0) {
-                                    stopSelf();
-                                }
-                            } catch (ParseException e) {
-                                e.printStackTrace();
+                            } //else stopSelf();
+                            Log.d("formatt", String.valueOf(entity.getId()) + "  " + list.get(list.size() - 1).getId());
+                            sharedPreferences.edit().putBoolean(string, true).apply();
+                            if (days != 0)
+                                compareDay++;
+                            if (entity.getId().compareTo(Long.valueOf(list.get(list.size() - 1).getId())) == 0) {
+                                stopSelf();
                             }
 
-                            sharedPreferences.edit().putBoolean(string, true).apply();
 
                         }
 

@@ -23,6 +23,8 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -141,15 +143,20 @@ public class Adapter extends ListAdapter {
                                 if (entity.getAmountDue() - entity.getAmountPaid() >= 0)
                                     entity.setAmountDue(entity.getAmountDue() - entity.getAmountPaid());
                                 else
-                                    entity.setAmountDue(entity.getAmountPaid());
-                                ViewModelProviders.of(mainActivity).get(MainViewModel.class).update(entity);
+                                    entity.setAmountDue(Integer.parseInt(editText.getText().toString()));
+                                MainViewModel mainViewModel= ViewModelProviders.of(mainActivity).get(MainViewModel.class);
+                                entity.setPaid_date(new SimpleDateFormat("dd:MM:yyyy").format(Calendar.getInstance().getTimeInMillis()));
+                                mainViewModel.update(entity);
+                                mainViewModel.setVlueinFirebase(entity, "update");
                                 TransactionEntity transactionEntity = new TransactionEntity();
                                 transactionEntity.setAmountPaid(entity.getAmountPaid());
                                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd : MM : yyyy");
                                 transactionEntity.setDatePaid(simpleDateFormat.format(Calendar.getInstance().getTimeInMillis()));
                                 transactionEntity.setHnum(entity.getHouseNumber());
                                 transactionEntity.setPhoneNumber(entity.getPhone_number());
-                                ViewModelProviders.of(mainActivity).get(MainViewModel.class).insertinTransactionEntity(transactionEntity);
+                                mainViewModel.insertinTransactionEntity(transactionEntity);
+                                FirebaseDatabase.getInstance().getReference("transactions").child(entity.getFirebaseReferenceKey())
+                                        .push().setValue(transactionEntity);
                                 notifyItemChanged(getAdapterPosition());
                                 alertDialog.dismiss();
                             }
