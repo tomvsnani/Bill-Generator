@@ -1,0 +1,2 @@
+rootProject.name='Skyline BroadBand'
+include ':app'

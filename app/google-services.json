@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "74586677182",
+    "firebase_url": "https://skyline-broadband.firebaseio.com",
+    "project_id": "skyline-broadband",
+    "storage_bucket": "skyline-broadband.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:74586677182:android:85b40c16dca2c7051c63ef",
+        "android_client_info": {
+          "package_name": "com.mytestings.skylinebroadband"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "74586677182-8lnf6osgo6gfl3a7aqrkifckegjdben7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnRXOLADKbSGmut4COaAZQY4f5coliwUI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "74586677182-8lnf6osgo6gfl3a7aqrkifckegjdben7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
