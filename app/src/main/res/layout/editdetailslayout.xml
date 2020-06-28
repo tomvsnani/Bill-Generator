@@ -283,7 +283,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
         android:layout_marginLeft="36dp"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="205dp"
         android:layout_marginRight="205dp"
         android:gravity="center"
@@ -292,8 +292,9 @@
         android:textColor="@color/colorAccent"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.478"
         app:layout_constraintStart_toEndOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/payableAmount" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout8" />
 
     <TextView
         android:id="@+id/deleteItem"
@@ -313,6 +314,64 @@
         app:layout_constraintHorizontal_bias="0.721"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/display_transactions"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.0" />
 
+    <LinearLayout
+        android:id="@+id/linearLayout8"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout9">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Remarks"
+            android:textSize="32sp" />
+
+        <EditText
+            android:id="@+id/remarksedit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:background="#e0e0e0"
+            android:gravity="start"
+            android:minHeight="100dp"
+            android:padding="8dp"
+            android:text="hello"
+            android:textColor="#6b6b6b"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout9"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:layout_margin="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/payableAmount"
+        tools:layout_editor_absoluteX="-16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Installation Amount" />
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="false"
+            android:background="@android:color/transparent"
+            android:id="@+id/installationamountedittext"
+            android:textSize="18sp" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

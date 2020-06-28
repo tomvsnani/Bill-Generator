@@ -32,6 +32,8 @@ public class CreateNewUser extends AppCompatActivity {
     EditText phnNum;
     EditText due;
     EditText monthlyfee;
+    EditText installationAmount;
+    EditText remarks;
 
     Button createUserButton;
     Entity entity;
@@ -50,6 +52,8 @@ public class CreateNewUser extends AppCompatActivity {
         monthlyfee = findViewById(R.id.createMonthlyfee);
         createUserButton = findViewById(R.id.createNewUserButton);
         scrollView = findViewById(R.id.scrollview);
+        installationAmount=findViewById(R.id.installationfee);
+        remarks=findViewById(R.id.remarks);
         entity = new Entity();
         mainViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
@@ -59,31 +63,36 @@ public class CreateNewUser extends AppCompatActivity {
 
         hNum.setInputType(InputType.TYPE_CLASS_TEXT);
         monthlyfee.setInputType(InputType.TYPE_CLASS_NUMBER);
+        installationAmount.setInputType(InputType.TYPE_CLASS_NUMBER);
 
         createUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if (name.getText().toString().length() > 0 && hNum.getText().toString().length() > 0
-                        && phnNum.getText().toString().length() > 0 && monthlyfee.getText().toString().length() > 0) {
+                        && phnNum.getText().toString().length() > 0 && monthlyfee.getText().toString().length() > 0
+                 && installationAmount.getText().toString().length()>0) {
                     Thread thread = new Thread(new Runnable() {
                         @Override
                         public void run() {
                             entity.setName(name.getText().toString());
-                            entity.setAccount_created_on(getDateandTime());
+                            entity.setAccountCreatedOn(getDateandTime());
                             entity.setHouseNumber(hNum.getText().toString());
                             entity.setNetPayablePrice(Integer.parseInt(monthlyfee.getText().toString()));
-                            entity.setPhone_number(Long.valueOf(phnNum.getText().toString()));
+                            entity.setPhoneNumber(phnNum.getText().toString());
+                            entity.setInstallationAmount(Integer.valueOf(installationAmount.getText().toString()));
                             entity.setAmountDue(Integer.parseInt(due.getText().toString()));
+                            entity.setRemarks(remarks.getText().toString());
                             if (entity.getAmountDue() == 0) {
                                 TransactionEntity transactionEntity = new TransactionEntity();
                                 transactionEntity.setAmountPaid(entity.getNetPayablePrice());
-                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd : MM : yyyy");
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
                                 transactionEntity.setDatePaid(simpleDateFormat.format(Calendar.getInstance().getTimeInMillis()));
                                 transactionEntity.setHnum(entity.getHouseNumber());
-                                transactionEntity.setPhoneNumber(entity.getPhone_number());
+                                transactionEntity.setTransactionId(entity.getHouseNumber()+Calendar.getInstance().getTimeInMillis());
+                                transactionEntity.setPhoneNumber(entity.getPhoneNumber());
                                 mainViewModel.insertinTransactionEntity(transactionEntity);
-                            }
+                                 }
                             mainViewModel.insert(entity);
                             Long id = mainViewModel.getEntityid();
                             entity.setId(id);

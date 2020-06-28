@@ -3,32 +3,17 @@ package Database;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.room.PrimaryKey;
-
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 @androidx.room.Entity
 public class Entity {
-    public boolean isExcessAmountPaid() {
-        return isExcessAmountPaid;
-    }
 
-    public void setExcessAmountPaid(boolean excessAmountPaid) {
-        isExcessAmountPaid = excessAmountPaid;
-    }
 
-    private String last_updated_on="";
-    private boolean isExcessAmountPaid=false;
-
-    public String getLast_updated_on() {
-        return last_updated_on;
-    }
-
-    public void setLast_updated_on(String last_updated_on) {
-        this.last_updated_on = last_updated_on;
-    }
 
     public static DiffUtil.ItemCallback<Entity> diff = new DiffUtil.ItemCallback<Entity>() {
         @Override
         public boolean areItemsTheSame(@NonNull Entity oldItem, @NonNull Entity newItem) {
-            return oldItem.getId() == newItem.getId();
+            return oldItem.getId().equals(newItem.getId());
         }
 
         @Override
@@ -36,52 +21,71 @@ public class Entity {
             return oldItem.equals(newItem);
         }
     };
-    private String HouseNumber="";
-    private String Name="";
-    private int AmountPaid=0;
-    private int AmountDue=0;
-    private String paid_date="";
-    private Long phone_number=0L;
-    private String account_created_on;
-
-    public String getFirebaseReferenceKey() {
-        return FirebaseReferenceKey;
-    }
-
-    public void setFirebaseReferenceKey(String firebaseReferenceKey) {
-        FirebaseReferenceKey = firebaseReferenceKey;
-    }
-
-    private String FirebaseReferenceKey;
-
-    public String getAccount_created_on() {
-        return account_created_on;
-    }
-
-    public void setAccount_created_on(String account_created_on) {
-        this.account_created_on = account_created_on;
-    }
-
     @PrimaryKey(autoGenerate = true)
+    @SerializedName("id")
+    @Expose
     private Long id;
-    private int paying_delayed_by_days;
-    private int netPayablePrice=600;
+    @SerializedName("name")
+    @Expose
+    private String name="";
+    @SerializedName("phone_number")
+    @Expose
+    private String phoneNumber="";
+    @SerializedName("houseNumber")
+    @Expose
+    private String houseNumber="";
+    @SerializedName("account_created_on")
+    @Expose
+    private String accountCreatedOn="";
+    @SerializedName("amountDue")
+    @Expose
+    private Integer amountDue=0;
+    @SerializedName("paid_date")
+    @Expose
+    private String paidDate="";
+    @SerializedName("amountPaid")
+    @Expose
+    private Integer amountPaid=0;
+    @SerializedName("firebaseReferenceKey")
+    @Expose
+    private String firebaseReferenceKey="";
+    @SerializedName("last_updated_on")
+    @Expose
+    private String lastUpdatedOn="";
 
-    public int getNetPayablePrice() {
-        return netPayablePrice;
+    public Long getUser_id() {
+        return user_id;
     }
 
-    public void setNetPayablePrice(int netPayablePrice) {
-        this.netPayablePrice = netPayablePrice;
+    public void setUser_id(Long user_id) {
+        this.user_id = user_id;
     }
 
-    public int getPaying_delayed_by_days() {
-        return paying_delayed_by_days;
+    @SerializedName("netPayablePrice")
+    @Expose
+    private Integer netPayablePrice;
+
+    private Long user_id=0L;
+
+    public Integer getInstallationAmount() {
+        return installationAmount;
     }
 
-    public void setPaying_delayed_by_days(int paying_delayed_by_days) {
-        this.paying_delayed_by_days = paying_delayed_by_days;
+    public void setInstallationAmount(Integer installationAmount) {
+        this.installationAmount = installationAmount;
     }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    private Integer installationAmount=0;
+
+    private String remarks="";
 
     public Long getId() {
         return id;
@@ -91,58 +95,91 @@ public class Entity {
         this.id = id;
     }
 
-    public String getHouseNumber() {
-        return HouseNumber;
-    }
-
-    public void setHouseNumber(String houseNumber) {
-        HouseNumber = houseNumber;
-    }
-
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
-        Name = name;
+        this.name = name;
     }
 
-    public int getAmountPaid() {
-        return AmountPaid;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setAmountPaid(int amountPaid) {
-        AmountPaid = amountPaid;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public int getAmountDue() {
-        return AmountDue;
+    public String getHouseNumber() {
+        return houseNumber;
     }
 
-    public void setAmountDue(int amountDue) {
-        AmountDue = amountDue;
+    public void setHouseNumber(String houseNumber) {
+        this.houseNumber = houseNumber;
     }
 
-    public String getPaid_date() {
-        return paid_date;
+    public String getAccountCreatedOn() {
+        return accountCreatedOn;
     }
 
-    public void setPaid_date(String paid_date) {
-        this.paid_date = paid_date;
+    public void setAccountCreatedOn(String accountCreatedOn) {
+        this.accountCreatedOn = accountCreatedOn;
     }
 
-    public Long getPhone_number() {
-        return phone_number;
+    public Integer getAmountDue() {
+        return amountDue;
     }
 
-    public void setPhone_number(Long phone_number) {
-        this.phone_number = phone_number;
+    public void setAmountDue(Integer amountDue) {
+        this.amountDue = amountDue;
+    }
+
+    public String getPaidDate() {
+        return paidDate;
+    }
+
+    public void setPaidDate(String paidDate) {
+        this.paidDate = paidDate;
+    }
+
+    public Integer getAmountPaid() {
+        return amountPaid;
+    }
+
+    public void setAmountPaid(Integer amountPaid) {
+        this.amountPaid = amountPaid;
+    }
+
+    public String getFirebaseReferenceKey() {
+        return firebaseReferenceKey;
+    }
+
+    public void setFirebaseReferenceKey(String firebaseReferenceKey) {
+        this.firebaseReferenceKey = firebaseReferenceKey;
+    }
+
+    public String getLastUpdatedOn() {
+        return lastUpdatedOn;
+    }
+
+    public void setLastUpdatedOn(String lastUpdatedOn) {
+        this.lastUpdatedOn = lastUpdatedOn;
+    }
+
+    public Integer getNetPayablePrice() {
+        return netPayablePrice;
+    }
+
+    public void setNetPayablePrice(Integer netPayablePrice) {
+        this.netPayablePrice = netPayablePrice;
     }
 
 
     private Boolean equals(Entity entity) {
-        return entity.getId() == this.getId() && entity.getHouseNumber().equals(this.getHouseNumber())
-                && entity.getPhone_number().equals(this.getPhone_number()) && entity.getAmountDue()==this.getAmountDue()
-                && entity.getAmountPaid()==this.getAmountPaid();
+        return entity.getId().equals(this.getId()) && entity.getHouseNumber().equals(this.getHouseNumber())
+              && entity.getAmountDue().equals(this.getAmountDue())
+                && entity.getAmountPaid().equals(this.getAmountPaid())
+                && entity.getPhoneNumber().equals(this.getPaidDate());
     }
 }

@@ -6,8 +6,9 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.mytestings.skylinebroadband.TransactionEntity;
+import com.mytestings.skylinebroadband.TransactionEntityIdsModel;
 
-@androidx.room.Database(entities = {Entity.class, TransactionEntity.class}, version = 1, exportSchema = false)
+@androidx.room.Database(entities = {Entity.class, TransactionEntity.class, TransactionEntityIdsModel.class}, version = 1, exportSchema = false)
 public abstract class SkyDatabase extends RoomDatabase {
     private static final Object object = new Object();
     private static SkyDatabase instance;

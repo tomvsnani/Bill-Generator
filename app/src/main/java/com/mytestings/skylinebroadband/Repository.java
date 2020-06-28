@@ -74,13 +74,13 @@ class Repository {
             entity.setFirebaseReferenceKey(key);
             databaseReference.child(key).setValue(entity);
             update(entity);
-            Log.d("keyishere", String.valueOf(entity.getId()));
+            Log.d("iddddhere5", String.valueOf(entity.getId()));
+
         } else {
 
-            Entity entity1 = getKeyFRomId(entity.getId());
-            Log.d("keyishe", String.valueOf(entity1.getFirebaseReferenceKey()));
-            String key = entity1.getFirebaseReferenceKey();
-            databaseReference.child(key).setValue(entity1);
+
+            String key = entity.getFirebaseReferenceKey();
+            databaseReference.child(key).setValue(entity);
         }
     }
 
@@ -95,10 +95,12 @@ class Repository {
     }
 
     void insert(final Entity entity) {
+        Log.d("iddddhere1", String.valueOf(entity.getId()));
        executor.execute(new Runnable() {
            @Override
            public void run() {
                entityId = skyDatabase.dao().insert(entity);
+               Log.d("iddddhere2", String.valueOf(entityId));
              setEntityId(entityId);
            }
        });
@@ -123,7 +125,8 @@ class Repository {
        executor.execute(new Runnable() {
            @Override
            public void run() {
-               skyDatabase.dao().update(entity);
+            int i=   skyDatabase.dao().update(entity);
+               Log.d("iddddhere4", String.valueOf(i));
            }
        });
 

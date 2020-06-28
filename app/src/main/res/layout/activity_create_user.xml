@@ -188,6 +188,71 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_begin="16dp" />
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/linearLayout6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout5">
+
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/installationfee"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="48dp"
+
+                android:layout_marginTop="72dp"
+                android:layout_marginRight="48dp"
+                android:hint="Enter Installation fee"
+                android:onClick="initiateScroll"
+                android:paddingStart="5dp"
+                android:paddingLeft="5dp"
+                android:paddingEnd="16dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="16dp"
+                android:textColor="#6b6b6b"
+                android:textColorHint="#6b6b6b"
+                android:textSize="16sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/linearLayout7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout6">
+
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/remarks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="48dp"
+
+                android:layout_marginTop="72dp"
+                android:layout_marginRight="48dp"
+                android:hint="Add remark"
+                android:onClick="initiateScroll"
+                android:paddingStart="5dp"
+                android:paddingLeft="5dp"
+                android:paddingEnd="16dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="16dp"
+                android:textColor="#6b6b6b"
+                android:textColorHint="#6b6b6b"
+                android:textSize="16sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/createNewUserButton"
@@ -202,12 +267,13 @@
             android:background="@drawable/shape_button_background"
             android:paddingLeft="32dp"
             android:paddingRight="32dp"
-            android:text="Create  User"
 
+            android:text="Create  User"
             android:textColor="#5efc82"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout7" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

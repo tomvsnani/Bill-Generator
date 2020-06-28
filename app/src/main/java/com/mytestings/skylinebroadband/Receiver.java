@@ -80,8 +80,7 @@ public class Receiver extends BroadcastReceiver {
             Calendar alaramcalender = Calendar.getInstance();
             String string = new SimpleDateFormat("dd:MM:yyyy").format(alaramcalender.getTimeInMillis());
 
-//            FirebaseDatabase.getInstance().getReference("lastFired")
-//                    .setValue(string);
+            sharedPreferences.edit().putBoolean(string, true).apply();
             skyDatabase = SkyDatabase.getInstance(getApplicationContext());
 
 
@@ -115,7 +114,7 @@ public class Receiver extends BroadcastReceiver {
                             Log.d("alaramfired", lastFired + " " + compareDay);
                             daysToIterate = days.intValue();
                         }
-                        dueDate = entity.getAccount_created_on();
+                        dueDate = entity.getAccountCreatedOn();
                         dueAmount = entity.getAmountDue();
 
 
@@ -137,7 +136,7 @@ public class Receiver extends BroadcastReceiver {
 
                                 entity.setAmountDue(dueAmount);
 
-                                entity.setLast_updated_on(string);
+                                entity.setLastUpdatedOn(string);
 
                                 Log.d("alaramenteredd", "indue");
                                 Log.d("alaramenteredd", String.valueOf(dueAmount));
@@ -149,7 +148,7 @@ public class Receiver extends BroadcastReceiver {
 
                             } //else stopSelf();
                             Log.d("formatt", String.valueOf(entity.getId()) + "  " + list.get(list.size() - 1).getId());
-                            sharedPreferences.edit().putBoolean(string, true).apply();
+
                             if (days != 0) {
                                 if (compareDay == maxDays)
                                     compareDay = 1;

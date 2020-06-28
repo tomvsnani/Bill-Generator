@@ -4,18 +4,24 @@
     android:layout_width="match_parent"
   android:layout_margin="16dp"
     android:padding="8dp"
-    android:weightSum="1"
+    android:weightSum="1.5"
     android:orientation="horizontal"
     android:layout_height="wrap_content">
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
         android:layout_weight="0.5"
-        android:id="@+id/date"/>
+        android:id="@+id/datetext"/>
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.5"
-        android:id="@+id/transaction"/>
+        android:id="@+id/paidbytext"/>
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:id="@+id/amounttext"/>
 
 </LinearLayout>

@@ -12,7 +12,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.telephony.SmsManager;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -85,6 +87,8 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
     FrameLayout frameLayout;
     TextView viewTransactions;
     TextView deleteTextview;
+    EditText remarks;
+    EditText installationAmountEditText;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,12 +109,15 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
         createdDate = findViewById(R.id.accountcreatedon);
         viewTransactions = findViewById(R.id.display_transactions);
         deleteTextview = findViewById(R.id.deleteItem);
-        mainViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        remarks = findViewById(R.id.remarksedit);
+        installationAmountEditText=findViewById(R.id.installationamountedittext);
+        mainViewModel = ViewModelProviders.of(
+                this).get(MainViewModel.class);
         transactionRowAdapter = new TransactionRowAdapter();
         entity = new Entity();
         handler = new Handler();
         String intentName = getIntent().getStringExtra("name");
-        Long intentphnNum = getIntent().getLongExtra("phn", -1);
+        String intentphnNum = getIntent().getStringExtra("phn");
         int intentDue = getIntent().getIntExtra("due", -1);
         String intentHnum = getIntent().getStringExtra("hnum");
         String intentlastPaidOn = getIntent().getStringExtra("lastpaid");
@@ -119,12 +126,12 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
         Long id = getIntent().getLongExtra("id", -1);
         entity.setHouseNumber(intentHnum);
         entity.setAmountDue(intentDue);
-        entity.setPaid_date(intentlastPaidOn);
-        entity.setPhone_number(intentphnNum);
+        entity.setPaidDate(intentlastPaidOn);
+        entity.setPhoneNumber(String.valueOf(intentphnNum));
         entity.setName(intentName);
         entity.setId(id);
         entity.setFirebaseReferenceKey(getIntent().getStringExtra("referencekey"));
-        entity.setAccount_created_on(account_CreatedOn);
+        entity.setAccountCreatedOn(account_CreatedOn);
         entity.setNetPayablePrice(monthlyFee);
         name.setText(intentName);
         hNum.setText(intentHnum);
@@ -133,6 +140,14 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
         lastPaidOn.setText(String.valueOf(intentlastPaidOn));
         monthlyfee.setText(String.valueOf(monthlyFee));
         createdDate.setText(account_CreatedOn);
+        installationAmountEditText.setText(String.valueOf(getIntent().getIntExtra("installation",-1)));
+        entity.setInstallationAmount(Integer.valueOf(installationAmountEditText.getText().toString()));
+        remarks.setText(getIntent().getStringExtra("remarks"));
+        entity.setRemarks(remarks.getText().toString());
+        Log.d("installationAMount",String.valueOf(getIntent().getIntExtra("installation",-1)))
+;
+
+        Log.d("installationre",remarks.getText().toString());
 
         deleteTextview.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -163,14 +178,33 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
         });
 
 
-
-
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
+
+        remarks.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (remarks.getText().toString().length() > 0) {
+                    entity.setRemarks(remarks.getText().toString());
+                    mainViewModel.update(entity);
+                    mainViewModel.setVlueinFirebase(entity, "update");
+                }
+            }
+        });
 
 
         editPhnNUm.setOnClickListener(new View.OnClickListener() {
@@ -225,7 +259,7 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
                 Intent intent = new Intent(EditDetailsActivity.this, DisplayTransactionsActivity.class);
                 intent.putExtra("extra", "total");
                 intent.putExtra("hnum", entity.getHouseNumber());
-                intent.putExtra("phn", entity.getPhone_number());
+                intent.putExtra("phn", entity.getPhoneNumber());
                 startActivity(intent);
 
             }
@@ -270,10 +304,10 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
 
                         case "phn":
                             editText.setInputType(InputType.TYPE_CLASS_PHONE);
-                            entity.setPhone_number(Long.valueOf(editText.getText().toString()));
+                            entity.setPhoneNumber(editText.getText().toString());
                             mainViewModel.update(entity);
                             mainViewModel.setVlueinFirebase(entity, "update");
-                            phnNum.setText(String.valueOf(entity.getPhone_number()));
+                            phnNum.setText(String.valueOf(entity.getPhoneNumber()));
                             alertDialog.dismiss();
                             break;
 
@@ -288,18 +322,18 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
                                 amountAfterpaying = entity.getAmountDue() - Integer.parseInt((editText.getText().toString()));
 
                             if (amountAfterpaying >= 0) {
-                                entity.setExcessAmountPaid(false);
+
                                 entity.setAmountDue(amountAfterpaying);
                             } else {
                                 entity.setAmountDue(amountAfterpaying);
-                                entity.setExcessAmountPaid(true);
+
                             }
 
-                            entity.setPaid_date(new SimpleDateFormat("dd:MM:yyyy").format(Calendar.getInstance().getTimeInMillis()));
+                            entity.setPaidDate(new SimpleDateFormat("dd:MM:yyyy").format(Calendar.getInstance().getTimeInMillis()));
                             mainViewModel.update(entity);
                             mainViewModel.setVlueinFirebase(entity, "update");
                             due.setText(String.valueOf(entity.getAmountDue()));
-                            lastPaidOn.setText(entity.getPaid_date());
+                            lastPaidOn.setText(entity.getPaidDate());
                             Toast.makeText(EditDetailsActivity.this, "Due is updated", Toast.LENGTH_SHORT).show();
                             Thread thread = new Thread(new Runnable() {
                                 @Override
@@ -315,12 +349,14 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
 
                             TransactionEntity transactionEntity = new TransactionEntity();
                             transactionEntity.setAmountPaid(Integer.parseInt(editText.getText().toString()));
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd:MM:yyyy");
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
                             transactionEntity.setUsername(entity.getName());
                             transactionEntity.setDatePaid(simpleDateFormat.format(Calendar.getInstance().getTimeInMillis()));
                             transactionEntity.setHnum(entity.getHouseNumber());
-                            transactionEntity.setPhoneNumber(entity.getPhone_number());
-                            mainViewModel.insertinTransactionEntity(transactionEntity);
+                            transactionEntity.setPhoneNumber(entity.getPhoneNumber());
+                            transactionEntity.setTransactionId(entity.getHouseNumber()+Calendar.getInstance().getTimeInMillis());
+                          //  mainViewModel.insertinTransactionEntity(transactionEntity);
+
                             FirebaseDatabase.getInstance().getReference("transactions").child(entity.getFirebaseReferenceKey())
                                     .push().setValue(transactionEntity);
 //                           Log.d("transactionnn",key);
@@ -375,7 +411,7 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
         String s = "http://198.24.149.4/API/pushsms.aspx?loginID=chirukonda&password=sky@765";
         Uri uri = Uri.parse(s)
                 .buildUpon()
-                .appendQueryParameter("mobile", entity.getPhone_number().toString())
+                .appendQueryParameter("mobile", entity.getPhoneNumber().toString())
                 .appendQueryParameter("text", message)
                 .appendQueryParameter("route_id", String.valueOf(2))
                 .appendQueryParameter("Unicode", String.valueOf(0))
@@ -426,7 +462,7 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
     }
 
     @Override
-    public void dateset(int year, int month, int dayofmonth) {
+    public void dateset(int year, int month, int dayofmonth, String tag) {
         if (entity != null) {
             Date simpleDateFormat = new Date();
             try {
@@ -434,7 +470,7 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            entity.setPaid_date(new SimpleDateFormat("dd:MM:yyyy").format(simpleDateFormat));
+            entity.setPaidDate(new SimpleDateFormat("dd:MM:yyyy").format(simpleDateFormat));
             mainViewModel.update(entity);
             mainViewModel.setVlueinFirebase(entity, "update");
             lastPaidOn.setText(new SimpleDateFormat("dd:MM:yyyy").format(simpleDateFormat));

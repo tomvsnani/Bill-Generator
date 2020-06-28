@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +43,8 @@ public class TransactionRowAdapter extends ListAdapter {
 
          //   Log.d("inhere", transactionEntity.getDatePaid());
             ((viewholder) (holder)).amountPaid.setText(String.valueOf(transactionEntity.getAmountPaid()));
-            ((viewholder) (holder)).datePaid.setText(transactionEntity.getDatePaid());
+            ((viewholder) (holder)).datePaid.setText(new SimpleDateFormat("dd:MM:yyyy")
+                    .format(transactionEntity.getDatePaid()));
 
 
 
@@ -70,8 +72,7 @@ public class TransactionRowAdapter extends ListAdapter {
 
         viewholder(@NonNull View itemView) {
             super(itemView);
-            datePaid = itemView.findViewById(R.id.date);
-            amountPaid = itemView.findViewById(R.id.transaction);
+
 
 
         }
