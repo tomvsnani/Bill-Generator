@@ -31,7 +31,7 @@ public class TransactionEntity {
     @PrimaryKey(autoGenerate = true)
     private int id;
     private String hnum;
-    private String phoneNumber;
+    private Long phoneNumber;
     private String datePaid;
 
     public String getTransactionId() {
@@ -78,11 +78,11 @@ public class TransactionEntity {
         this.hnum = hnum;
     }
 
-    public String getPhoneNumber() {
+    public Long getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
+    public void setPhoneNumber(Long phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 

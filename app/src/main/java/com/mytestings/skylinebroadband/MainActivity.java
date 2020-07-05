@@ -603,7 +603,7 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
         alaramcalender.set(Calendar.MINUTE, 0);
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, alaramcalender.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY, pendingIntent);
-        String string = new SimpleDateFormat("dd:MM:yyyy").format(Calendar.getInstance().getTimeInMillis());
+        String string = new SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().getTimeInMillis());
         SharedPreferences sharedPreferences = getSharedPreferences("alarams", MODE_PRIVATE);
         sharedPreferences.edit().putString("lastFired", string).apply();
     }
@@ -632,7 +632,7 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
                 SharedPreferences sharedPreferences = context.getSharedPreferences("alarams", MODE_PRIVATE);
 
 
-                String string = new SimpleDateFormat("dd:MM:yyyy")
+                String string = new SimpleDateFormat("dd/MM/yyyy")
                         .format(Calendar.getInstance().getTimeInMillis());
                 Log.d("hello", String.valueOf(sharedPreferences.contains(string)));
                 Log.d("hello", String.valueOf(sharedPreferences.getAll()));

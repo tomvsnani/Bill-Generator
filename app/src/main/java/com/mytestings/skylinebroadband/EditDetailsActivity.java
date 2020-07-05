@@ -89,7 +89,7 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
     TextView deleteTextview;
     EditText remarks;
     EditText installationAmountEditText;
-
+TextView incrementdue;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,6 +110,7 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
         viewTransactions = findViewById(R.id.display_transactions);
         deleteTextview = findViewById(R.id.deleteItem);
         remarks = findViewById(R.id.remarksedit);
+        incrementdue=findViewById(R.id.incrementdue);
         installationAmountEditText=findViewById(R.id.installationamountedittext);
         mainViewModel = ViewModelProviders.of(
                 this).get(MainViewModel.class);
@@ -117,7 +118,7 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
         entity = new Entity();
         handler = new Handler();
         String intentName = getIntent().getStringExtra("name");
-        String intentphnNum = getIntent().getStringExtra("phn");
+        Long intentphnNum = getIntent().getLongExtra("phn",-1);
         int intentDue = getIntent().getIntExtra("due", -1);
         String intentHnum = getIntent().getStringExtra("hnum");
         String intentlastPaidOn = getIntent().getStringExtra("lastpaid");
@@ -127,7 +128,7 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
         entity.setHouseNumber(intentHnum);
         entity.setAmountDue(intentDue);
         entity.setPaidDate(intentlastPaidOn);
-        entity.setPhoneNumber(String.valueOf(intentphnNum));
+        entity.setPhoneNumber(intentphnNum);
         entity.setName(intentName);
         entity.setId(id);
         entity.setFirebaseReferenceKey(getIntent().getStringExtra("referencekey"));
@@ -148,6 +149,8 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
 ;
 
         Log.d("installationre",remarks.getText().toString());
+
+
 
         deleteTextview.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -206,7 +209,12 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
             }
         });
 
-
+        incrementdue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createDialog("increment");
+            }
+        });
         editPhnNUm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -304,7 +312,7 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
 
                         case "phn":
                             editText.setInputType(InputType.TYPE_CLASS_PHONE);
-                            entity.setPhoneNumber(editText.getText().toString());
+                            entity.setPhoneNumber(Long.valueOf(editText.getText().toString()));
                             mainViewModel.update(entity);
                             mainViewModel.setVlueinFirebase(entity, "update");
                             phnNum.setText(String.valueOf(entity.getPhoneNumber()));
@@ -380,12 +388,19 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
                         case "fee":
                             editText.setInputType(InputType.TYPE_CLASS_NUMBER);
                             entity.setNetPayablePrice(Integer.parseInt(editText.getText().toString()));
-                            mainViewModel.update(entity);
-                            mainViewModel.setVlueinFirebase(entity, "update");
+
                             monthlyfee.setText(editText.getText().toString());
                             alertDialog.dismiss();
 
                             break;
+
+                        case "increment":
+                            int amount= Integer.parseInt(editText.getText().toString());
+                            entity.setAmountDue(entity.getAmountDue()+amount);
+                            due.setText(String.valueOf(entity.getAmountDue()));
+                            mainViewModel.update(entity);
+                            mainViewModel.setVlueinFirebase(entity, "update");
+                            alertDialog.dismiss();
                     }
                 }
 
@@ -423,6 +438,7 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setDoOutput(true);
             httpURLConnection.connect();
+            Log.d("responses",url.toString());
             Log.d("responses", httpURLConnection.getResponseMessage());
         } catch (IOException e) {
             e.printStackTrace();
@@ -458,6 +474,9 @@ public class EditDetailsActivity extends AppCompatActivity implements DatesetInt
 
 
                 break;
+            case "increment":
+                editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                editText.setHint("Add amount to previous due");
         }
     }
 

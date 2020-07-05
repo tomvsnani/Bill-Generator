@@ -79,7 +79,7 @@ public class CreateNewUser extends AppCompatActivity {
                             entity.setAccountCreatedOn(getDateandTime());
                             entity.setHouseNumber(hNum.getText().toString());
                             entity.setNetPayablePrice(Integer.parseInt(monthlyfee.getText().toString()));
-                            entity.setPhoneNumber(phnNum.getText().toString());
+                            entity.setPhoneNumber(Long.valueOf(phnNum.getText().toString()));
                             entity.setInstallationAmount(Integer.valueOf(installationAmount.getText().toString()));
                             entity.setAmountDue(Integer.parseInt(due.getText().toString()));
                             entity.setRemarks(remarks.getText().toString());

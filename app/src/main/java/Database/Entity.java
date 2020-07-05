@@ -30,7 +30,7 @@ public class Entity {
     private String name="";
     @SerializedName("phone_number")
     @Expose
-    private String phoneNumber="";
+    private Long phoneNumber=0L;
     @SerializedName("houseNumber")
     @Expose
     private String houseNumber="";
@@ -53,19 +53,13 @@ public class Entity {
     @Expose
     private String lastUpdatedOn="";
 
-    public Long getUser_id() {
-        return user_id;
-    }
 
-    public void setUser_id(Long user_id) {
-        this.user_id = user_id;
-    }
 
     @SerializedName("netPayablePrice")
     @Expose
     private Integer netPayablePrice;
 
-    private Long user_id=0L;
+
 
     public Integer getInstallationAmount() {
         return installationAmount;
@@ -103,11 +97,11 @@ public class Entity {
         this.name = name;
     }
 
-    public String getPhoneNumber() {
+    public Long getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
+    public void setPhoneNumber(Long phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 

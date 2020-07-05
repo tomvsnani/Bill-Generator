@@ -61,7 +61,7 @@ public class Adapter extends ListAdapter implements Filterable {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Entity entity = (Entity) getCurrentList().get(position);
         if (entity.getPhoneNumber() != null)
-            ((viewholder) (holder)).phnNum.setText(entity.getPhoneNumber());
+            ((viewholder) (holder)).phnNum.setText(String.valueOf(entity.getPhoneNumber()));
         if (entity.getAmountDue() < 0)
             ((viewholder) (holder)).dueAmount.setText("excess amount  : " + String.valueOf((-1) * entity.getAmountDue()));
         else
@@ -125,7 +125,7 @@ public class Adapter extends ListAdapter implements Filterable {
 
                     //     Log.d("phonenn", String.valueOf(e.getPhone_number().compareTo(Long.valueOf(s.toString()))==0));
                     if (((Entity) (e)).getName().toLowerCase().contains(s) ||
-                            ((Entity) (e)).getPhoneNumber().contains(s)
+                           String.valueOf((((Entity) (e)).getPhoneNumber())).contains(s)
                     ) {
 
                         searchList.add(((Entity) (e)));
