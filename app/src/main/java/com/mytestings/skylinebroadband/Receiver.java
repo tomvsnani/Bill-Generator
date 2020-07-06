@@ -76,7 +76,7 @@ public class Receiver extends BroadcastReceiver {
         }
 
         @Override
-        public int onStartCommand(Intent intent, int flags, int startId) {
+        public int onStartCommand(Intent intent, int flags, final int startId) {
              Log.d("hellointent", intent.toUri(0));
             if(intent.getAction()!=null && intent.getAction().equals("stop")) {
                 Log.d("cancelservice","ss");
@@ -149,6 +149,7 @@ public class Receiver extends BroadcastReceiver {
                          int day = Integer.parseInt(new SimpleDateFormat("dd").format(date));
 
                              sharedPreferences.edit().putString("lastFired", string).apply();
+                             FirebaseDatabase.getInstance().getReference().child("last").setValue(string);
                              for (int i = 0; i < daysToIterate; i++) {
 
                                  Log.d("alaramentered", String.valueOf(compareDay) + "  " + days);

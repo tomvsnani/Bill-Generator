@@ -72,14 +72,14 @@ public class Adapter extends ListAdapter implements Filterable {
     }
 
     public void submit(List<Entity> list){
-        fullList=list;
+        fullList.clear();
+        fullList.addAll(list);
         submitList(list);
     }
 
     @Override
     public void submitList(@Nullable List list) {
-
-        super.submitList(list != null ? new ArrayList<String>(list) : null);
+        super.submitList(list.size()!=0 ? new ArrayList<Entity>(list) : null);
     }
 
     @Override

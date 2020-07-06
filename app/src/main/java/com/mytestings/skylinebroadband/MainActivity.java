@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
             lastFiredTextView.setText("Dues last updated on :  " + lastFired);
         else
             lastFiredTextView.setText("not yet updated today");
-
+//        FirebaseDatabase.getInstance().getReference().child("last").setValue(lastFired);
         databaseReference.keepSynced(true);
         //  transactionReference.keepSynced(true);
         final String PREFS_NAME = "MyPrefsFile";
@@ -603,9 +603,30 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
         alaramcalender.set(Calendar.MINUTE, 0);
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, alaramcalender.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY, pendingIntent);
-        String string = new SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().getTimeInMillis());
-        SharedPreferences sharedPreferences = getSharedPreferences("alarams", MODE_PRIVATE);
-        sharedPreferences.edit().putString("lastFired", string).apply();
+        final String string = new SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().getTimeInMillis());
+        final SharedPreferences sharedPreferences = getSharedPreferences("alarams", MODE_PRIVATE);
+
+
+        FirebaseDatabase.getInstance().getReference().child("last").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String lastfired= (String) snapshot.getValue();
+
+                if(lastfired!=null && lastfired.length()>0) {
+                    Log.d("getting",lastfired);
+                    sharedPreferences.edit().putString("lastFired", lastfired).apply();
+                }
+                else
+
+                    sharedPreferences.edit().putString("lastFired", string).apply();
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     public static class Rebootreceiver extends BroadcastReceiver {

@@ -17,8 +17,11 @@ public class Entity {
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull Entity oldItem, @NonNull Entity newItem) {
-            return oldItem.equals(newItem);
+        public boolean areContentsTheSame(@NonNull Entity entity, @NonNull Entity newItem) {
+            return entity.getHouseNumber().equals(newItem.getHouseNumber())
+                    && entity.getAmountDue().equals(newItem.getAmountDue())
+                    && entity.getAmountPaid().equals(newItem.getAmountPaid())
+                    && entity.getPhoneNumber().equals(newItem.getPaidDate());
         }
     };
     @PrimaryKey(autoGenerate = true)
@@ -170,10 +173,4 @@ public class Entity {
     }
 
 
-    private Boolean equals(Entity entity) {
-        return entity.getId().equals(this.getId()) && entity.getHouseNumber().equals(this.getHouseNumber())
-              && entity.getAmountDue().equals(this.getAmountDue())
-                && entity.getAmountPaid().equals(this.getAmountPaid())
-                && entity.getPhoneNumber().equals(this.getPaidDate());
-    }
 }
