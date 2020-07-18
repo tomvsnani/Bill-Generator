@@ -86,7 +86,7 @@ public class CreateNewUser extends AppCompatActivity {
                             if (entity.getAmountDue() == 0) {
                                 TransactionEntity transactionEntity = new TransactionEntity();
                                 transactionEntity.setAmountPaid(entity.getNetPayablePrice());
-                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
                                 transactionEntity.setDatePaid(simpleDateFormat.format(Calendar.getInstance().getTimeInMillis()));
                                 transactionEntity.setHnum(entity.getHouseNumber());
                                 transactionEntity.setTransactionId(entity.getHouseNumber()+Calendar.getInstance().getTimeInMillis());
@@ -114,7 +114,7 @@ public class CreateNewUser extends AppCompatActivity {
     }
 
     private String getDateandTime() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd : MM : yyyy");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
         return simpleDateFormat.format(Calendar.getInstance().getTimeInMillis());
     }
 

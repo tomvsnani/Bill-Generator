@@ -657,7 +657,7 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
                         .format(Calendar.getInstance().getTimeInMillis());
                 Log.d("hello", String.valueOf(sharedPreferences.contains(string)));
                 Log.d("hello", String.valueOf(sharedPreferences.getAll()));
-                if (!sharedPreferences.getBoolean(string, false)) {
+                if (!sharedPreferences.getString("lastFired","0").equals(string)) {
                     Intent intent2 = new Intent(context, Receiver.class);
                     intent2.putExtra("hello", "boot");
                     context.sendBroadcast(intent2);

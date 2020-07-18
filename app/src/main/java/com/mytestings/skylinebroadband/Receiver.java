@@ -62,8 +62,8 @@ public class Receiver extends BroadcastReceiver {
         int dueAmount;
         long compareDay = 0;
         int daysToIterate = 0;
-        int countamountinc=0;
-        int countruntimes=0;
+        int countamountinc = 0;
+        int countruntimes = 0;
 
         private void updateEntity(final Entity entity) {
             Thread thread = new Thread(new Runnable() {
@@ -77,12 +77,15 @@ public class Receiver extends BroadcastReceiver {
 
         @Override
         public int onStartCommand(Intent intent, int flags, final int startId) {
-             Log.d("hellointent", intent.toUri(0));
-            if(intent.getAction()!=null && intent.getAction().equals("stop")) {
-                Log.d("cancelservice","ss");
-                Log.d("cancelser",intent.getAction());
+            Log.d("hellointent", intent.toUri(0));
+            if (intent.getAction() != null && (intent.getAction().equals("stop") || intent.getStringExtra("stop").equals("stop")) ) {
+                Log.d("cancelservice", "ss");
+                Log.d("cancelser", intent.getAction());
                 stopForeground(true);
                 stopSelf();
+            }
+            else{
+                Log.d("cancelserr","hh");
             }
             String intentStringExtra = intent.getStringExtra("hello");
             final int maxDays = Calendar.getInstance().getActualMaximum(Calendar.DATE);
@@ -99,120 +102,127 @@ public class Receiver extends BroadcastReceiver {
 
             try {
                 final String lastFired = getSharedPreferences("alarams", MODE_PRIVATE).getString("lastFired",
-                        new SimpleDateFormat("dd/M/yyyy").format(Calendar.getInstance().getTimeInMillis()));
-                Date lastFiredDate = new SimpleDateFormat("dd/M/yyyy").parse(lastFired);
+                        new SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().getTimeInMillis()));
+                Date lastFiredDate = new SimpleDateFormat("dd/MM/yyyy").parse(lastFired);
                 final int lastFiredDay = Integer.parseInt(new SimpleDateFormat("dd").format(lastFiredDate));
 
-                Date date1 = new SimpleDateFormat("dd/M/yyyy").parse(lastFired);
-                Date date2 = new SimpleDateFormat("dd/M/yyyy").parse(new SimpleDateFormat("dd/M/yyyy").
+                Date date1 = new SimpleDateFormat("dd/MM/yyyy").parse(lastFired);
+                Date date2 = new SimpleDateFormat("dd/MM/yyyy").parse(new SimpleDateFormat("dd/MM/yyyy").
                         format(Calendar.getInstance().getTimeInMillis()));
                 long differenecInDays = Math.abs(date1.getTime() - date2.getTime());
                 final Long days = differenecInDays / (1000 * 60 * 60 * 24);
                 Log.d("yessdays", String.valueOf(days) + "  " + lastFired);
 
 
-             FirebaseDatabase.getInstance().getReference("Users").addChildEventListener(new ChildEventListener() {
-                 @Override
-                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                     Entity entity=dataSnapshot.getValue(Entity.class);
-                     Log.d("yessdays","count "+(++countruntimes));
-                     list = skyDatabase.dao().getTotaldataNoLiveData();
-                     if (days == 0) {
-                         compareDay = Integer.valueOf(new SimpleDateFormat("dd")
-                                 .format(Calendar.getInstance().getTimeInMillis()));
-                         daysToIterate = daysToIterate + 1;
-                     }
+                FirebaseDatabase.getInstance().getReference("Users").addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                        Entity entity = dataSnapshot.getValue(Entity.class);
+                        Log.d("yessdays", "count " + (++countruntimes));
+                        list = skyDatabase.dao().getTotaldataNoLiveData();
+                        if (days == 0) {
+                            compareDay = Integer.valueOf(new SimpleDateFormat("dd")
+                                    .format(Calendar.getInstance().getTimeInMillis()));
+                            daysToIterate = daysToIterate + 1;
+                        }
 
-                     if (dataSnapshot.getChildrenCount() > 0) {
+                        if (dataSnapshot.getChildrenCount() > 0) {
 
-                             Log.d("alaramfired", lastFired+"   "+ dataSnapshot.getChildrenCount());
-                             if (days > 0) {
-                                 Log.d("alaramfired", lastFired+"  "+entity.getName());
-                                 if(maxDays==30)
-                                 compareDay = 1;
-                                 else
-                                     compareDay=lastFiredDay+1;
-                                 Log.d("alaramfired", lastFired + " " + compareDay);
-                                 daysToIterate = days.intValue();
-                             }
-                             dueDate = entity.getAccountCreatedOn();
-                             dueAmount = entity.getAmountDue();
+                            Log.d("alaramfired", lastFired + "   " + dataSnapshot.getChildrenCount());
+                            if (days > 0) {
+                                Log.d("alaramfired", lastFired + "  " + entity.getName());
+                                if (maxDays == 30)
+                                    compareDay = 1;
+                                else
+                                    compareDay = lastFiredDay + 1;
+                                Log.d("alaramfired", lastFired + " " + compareDay);
+                                daysToIterate = days.intValue();
+                            }
 
+                            dueDate = entity.getAccountCreatedOn();
+                            dueAmount = entity.getAmountDue();
+                            if (dueDate == null) {
+                                Log.d("printing1", entity.getName());
+                            }
 
-                         Date date = null;
-                         try {
-                             date = new SimpleDateFormat("dd/MM/yyyy").parse(dueDate);
-                         } catch (ParseException e) {
-                             e.printStackTrace();
-                         }
+                            Date date = null;
+                            try {
+                                date = new SimpleDateFormat("dd/MM/yyyy").parse(dueDate);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            if (date == null) {
+                                Log.d("printing2", entity.getName());
+                            }
 
-                         int day = Integer.parseInt(new SimpleDateFormat("dd").format(date));
-
-                             sharedPreferences.edit().putString("lastFired", string).apply();
-                             FirebaseDatabase.getInstance().getReference().child("last").setValue(string);
-                             for (int i = 0; i < daysToIterate; i++) {
-
-                                 Log.d("alaramentered", String.valueOf(compareDay) + "  " + days);
-
-                                 if ( day ==
-                                         compareDay) {
-                                     Log.d("yessdays","countamountin "+(++countamountinc));
-                                     Log.d("dueamountt", dueAmount + "  " + (dueAmount + entity.getNetPayablePrice()));
-
-                                     dueAmount = dueAmount + entity.getNetPayablePrice();
-
-                                     entity.setAmountDue(dueAmount);
-
-                                     entity.setLastUpdatedOn(string);
-
-                                     Log.d("alaramenteredd", "indue");
-                                     Log.d("alaramenteredd", String.valueOf(dueAmount));
-                                     updateEntity(entity);
-
-                                     FirebaseDatabase.getInstance().getReference("Users")
-                                             .child(entity.getFirebaseReferenceKey()).setValue(entity);
+                            int day = Integer.parseInt(new SimpleDateFormat("dd").format(date));
 
 
-                                 } //else stopSelf();
-                             //    Log.d("formatt", String.valueOf(entity.getId()) + "  " + list.get(list.size() - 1).getId());
+                            sharedPreferences.edit().putString("lastFired", string).apply();
+                                FirebaseDatabase.getInstance().getReference().child("last").setValue(string);
+                            for (int i = 0; i < daysToIterate; i++) {
 
-                                 if (days != 0) {
-                                     if (compareDay == maxDays)
-                                         compareDay = 1;
-                                     else
-                                         compareDay++;
-                                 }
+                                Log.d("alaramentered", String.valueOf(compareDay) + "  " + days);
+
+                                if (day ==
+                                        compareDay) {
+                                    Log.d("yessdays", "countamountin " + (++countamountinc));
+                                    Log.d("dueamountt", dueAmount + "  " + (dueAmount + entity.getNetPayablePrice()));
+
+                                    dueAmount = dueAmount + entity.getNetPayablePrice();
+
+                                    entity.setAmountDue(dueAmount);
+
+                                    entity.setLastUpdatedOn(string);
+
+                                    Log.d("alaramenteredd", "indue");
+                                    Log.d("alaramenteredd", String.valueOf(dueAmount));
+                                    updateEntity(entity);
+
+                                      FirebaseDatabase.getInstance().getReference("Users")
+                                          .child(entity.getFirebaseReferenceKey()).setValue(entity);
+
+
+                                } //else stopSelf();
+                                //    Log.d("formatt", String.valueOf(entity.getId()) + "  " + list.get(list.size() - 1).getId());
+
+                                if (days != 0) {
+                                    if (compareDay == maxDays)
+                                        compareDay = 1;
+                                    else
+                                        compareDay++;
+                                }
 //                                 if () {
 //                                     stopSelf();
 //                                 }
 
 
-                             }
+                            }
 
 
-                     } else stopSelf();
-                 }
+                        } else stopSelf();
+                    }
 
-                 @Override
-                 public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
-                 }
+                    }
 
-                 @Override
-                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
 
-                 }
+                    }
 
-                 @Override
-                 public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
-                 }
+                    }
 
-                 @Override
-                 public void onCancelled(@NonNull DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                 }
-             });
+                    }
+                });
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -257,7 +267,8 @@ public class Receiver extends BroadcastReceiver {
 
             Intent stopSef = new Intent(this, Receiver.class);
             stopSef.setAction("stop");
-            PendingIntent pStopSelf = PendingIntent.getService(this, 0, stopSef,PendingIntent.FLAG_UPDATE_CURRENT);
+            stopSef.putExtra("stop","stop");
+            PendingIntent pStopSelf = PendingIntent.getService(this, 0, stopSef, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(R.drawable.ic_search_black_24dp, "stop", pStopSelf);
 
             builder.setSmallIcon(R.drawable.common_google_signin_btn_icon_dark);
