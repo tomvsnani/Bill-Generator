@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
     FloatingActionButton floatingActionButton;
     MainViewModel mainViewModel;
     int count = 0;
-
     Toolbar toolbar;
     AppCompatRadioButton totalusersRadioButton;
     AppCompatRadioButton dueUsersRadioButton;
@@ -84,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
     AlertDialog alertDialog;
     LiveData<List<String>> transactionEntityListNoLiveData;
     Boolean childlisteneradded = false;
+    final String PREFS_NAME = "MyPrefsFile";
 
 
     @Override
@@ -107,16 +107,15 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(adapter);
         lastFiredTextView = findViewById(R.id.lastFired);
-        String lastFired = getSharedPreferences("alarams", MODE_PRIVATE).getString("lastFired",
+        String lastFired = getSharedPreferences(AppConstants.ALARAMSSHAREDPREFERENCES, MODE_PRIVATE).getString(AppConstants.LASTFIREDVALUE,
                 "0");
         if (!lastFired.equals("0"))
             lastFiredTextView.setText("Dues last updated on :  " + lastFired);
         else
             lastFiredTextView.setText("not yet updated today");
-//        FirebaseDatabase.getInstance().getReference().child("last").setValue(lastFired);
+//
         databaseReference.keepSynced(true);
-        //  transactionReference.keepSynced(true);
-        final String PREFS_NAME = "MyPrefsFile";
+
 
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 
@@ -126,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
         }
         settings.edit().putBoolean("my_first_time", false).apply();
 
-        // transactionReference.keepSynced(true);
         retrieveFirebaseEntityData();
 
 
@@ -136,11 +134,7 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
                 List<String> testlivedata = SkyDatabase.getInstance(MainActivity.this).dao().getTransactionidNoLiveData();
                 for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
                     dataSnapshot1.getRef().keepSynced(true);
-
-                    // dataSnapshot.getRef().keepSynced(true);
                     TransactionEntity transactionEntity = dataSnapshot1.getValue(TransactionEntity.class);
-                    Log.d("updatedduly", "id  " + testlivedata + "  " + transactionEntity.getTransactionId());
-                    Log.d("updatedduly", "check  " + testlivedata.contains(transactionEntity.getTransactionId()));
 
                     if (!testlivedata.contains(transactionEntity.getTransactionId())) {
                         TransactionEntityIdsModel transactionEntityIdsModel = new TransactionEntityIdsModel();
@@ -162,10 +156,7 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
                 for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
                     dataSnapshot1.getRef().keepSynced(true);
 
-                    // dataSnapshot.getRef().keepSynced(true);
-                    TransactionEntity transactionEntity = dataSnapshot1.getValue(TransactionEntity.class);
-                    Log.d("updatedduly", "id  " + testlivedata + "  " + transactionEntity.getTransactionId());
-                    Log.d("updatedduly", "check  " + testlivedata.contains(transactionEntity.getTransactionId()));
+                           TransactionEntity transactionEntity = dataSnapshot1.getValue(TransactionEntity.class);
 
                     if (!testlivedata.contains(transactionEntity.getTransactionId())) {
                         TransactionEntityIdsModel transactionEntityIdsModel = new TransactionEntityIdsModel();
@@ -314,8 +305,8 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
 
                 }
             });
-          alertDialog=  builder.create();
-          alertDialog.show();
+            alertDialog = builder.create();
+            alertDialog.show();
 
             return true;
         }
@@ -524,22 +515,17 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
 
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-
-                Log.d("entityiddd", String.valueOf(dataSnapshot.getValue()));
-                Entity entity = dataSnapshot.getValue(Entity.class);
+           Entity entity = dataSnapshot.getValue(Entity.class);
                 list.add(entity);
                 adapter.submit(list);
-                //   mainViewModel.insert(entity);
 
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Entity dbEntity = dataSnapshot.getValue(Entity.class);
-                List<Entity> list = new ArrayList<>(adapter.getCurrentList());
-                List<Entity> list1 = new ArrayList<>();
-                int index = -1;
+                List<Entity> list = new ArrayList<Entity>(adapter.getCurrentList());
+                       int index = -1;
 
                 for (Entity entity : list) {
                     if (entity.getId().compareTo(dbEntity.getId()) == 0) {
@@ -593,9 +579,9 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
     }
 
     public void createAlarm() {
+        Log.d("inalaram","yes");
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Calendar alaramcalender = Calendar.getInstance();
-        alaramcalender.setTimeInMillis(System.currentTimeMillis());
         alaramcalender.set(Calendar.HOUR_OF_DAY, 24);
         Intent intent = new Intent(this, Receiver.class);
         intent.putExtra("hello", "start");
@@ -603,22 +589,21 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
         alaramcalender.set(Calendar.MINUTE, 0);
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, alaramcalender.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY, pendingIntent);
-        final String string = new SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().getTimeInMillis());
-        final SharedPreferences sharedPreferences = getSharedPreferences("alarams", MODE_PRIVATE);
+        final String string = new SimpleDateFormat(AppConstants.dateFormat).format(Calendar.getInstance().getTimeInMillis());
+        final SharedPreferences sharedPreferences = getSharedPreferences(AppConstants.ALARAMSSHAREDPREFERENCES, MODE_PRIVATE);
 
 
         FirebaseDatabase.getInstance().getReference().child("last").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String lastfired= (String) snapshot.getValue();
+                String lastfired = (String) snapshot.getValue();
 
-                if(lastfired!=null && lastfired.length()>0) {
-                    Log.d("getting",lastfired);
-                    sharedPreferences.edit().putString("lastFired", lastfired).apply();
-                }
-                else
+                if (lastfired != null && lastfired.length() > 0) {
+                    Log.d("getting", lastfired);
+                    sharedPreferences.edit().putString(AppConstants.LASTFIREDVALUE, lastfired).apply();
+                } else
 
-                    sharedPreferences.edit().putString("lastFired", string).apply();
+                    sharedPreferences.edit().putString(AppConstants.LASTFIREDVALUE, string).apply();
 
             }
 
@@ -635,29 +620,21 @@ public class MainActivity extends AppCompatActivity implements DatesetInterface 
         public void onReceive(Context context, Intent intent) {
             Log.d("hello", "yes1");
             if (intent.getAction() != null && intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
-
-
                 Log.d("helloinboot", "yes");
                 Calendar alaramcalender = Calendar.getInstance();
                 AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-
                 alaramcalender.setTimeInMillis(System.currentTimeMillis());
                 alaramcalender.set(Calendar.HOUR_OF_DAY, 24);
-
                 Intent intent1 = new Intent(context, Receiver.class);
                 intent1.putExtra("hello", "bootc");
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 5, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
                 alaramcalender.set(Calendar.MINUTE, 0);
-
-
-                SharedPreferences sharedPreferences = context.getSharedPreferences("alarams", MODE_PRIVATE);
-
-
-                String string = new SimpleDateFormat("dd/MM/yyyy")
+                SharedPreferences sharedPreferences = context.getSharedPreferences(AppConstants.ALARAMSSHAREDPREFERENCES, MODE_PRIVATE);
+                String string = new SimpleDateFormat(AppConstants.dateFormat)
                         .format(Calendar.getInstance().getTimeInMillis());
-                Log.d("hello", String.valueOf(sharedPreferences.contains(string)));
+                Log.d("hello", String.valueOf(sharedPreferences.getString(AppConstants.LASTFIREDVALUE, "0").equals(string)));
                 Log.d("hello", String.valueOf(sharedPreferences.getAll()));
-                if (!sharedPreferences.getString("lastFired","0").equals(string)) {
+                if (!sharedPreferences.getString(AppConstants.LASTFIREDVALUE, "0").equals(string)) {
                     Intent intent2 = new Intent(context, Receiver.class);
                     intent2.putExtra("hello", "boot");
                     context.sendBroadcast(intent2);

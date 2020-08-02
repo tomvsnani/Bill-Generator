@@ -40,7 +40,7 @@ import java.util.List;
 import Database.Entity;
 import Database.SkyDatabase;
 
-public class Adapter extends ListAdapter implements Filterable {
+public class Adapter extends ListAdapter<Entity, Adapter.viewholder> implements Filterable {
     MainActivity mainActivity;
     List<Entity> fullList = new ArrayList<>();
 
@@ -52,13 +52,15 @@ public class Adapter extends ListAdapter implements Filterable {
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public viewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new viewholder(LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.row_layout, parent, false));
     }
 
+
+
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull viewholder holder, int position) {
         Entity entity = (Entity) getCurrentList().get(position);
         if (entity.getPhoneNumber() != null)
             ((viewholder) (holder)).phnNum.setText(String.valueOf(entity.getPhoneNumber()));

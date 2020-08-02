@@ -34,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import Database.Entity;
@@ -64,6 +65,7 @@ public class Receiver extends BroadcastReceiver {
         int daysToIterate = 0;
         int countamountinc = 0;
         int countruntimes = 0;
+        public final String TAG = getClass().getSimpleName();
 
         private void updateEntity(final Entity entity) {
             Thread thread = new Thread(new Runnable() {
@@ -77,124 +79,178 @@ public class Receiver extends BroadcastReceiver {
 
         @Override
         public int onStartCommand(Intent intent, int flags, final int startId) {
-            Log.d("hellointent", intent.toUri(0));
-            if (intent.getAction() != null && (intent.getAction().equals("stop") || intent.getStringExtra("stop").equals("stop")) ) {
-                Log.d("cancelservice", "ss");
-                Log.d("cancelser", intent.getAction());
+
+            Log.d(TAG, "hellointent" + intent.toUri(0));
+
+            if (intent.getAction() != null && (intent.getAction().equals("stop") || intent.getStringExtra("stop").equals("stop"))) {
+
                 stopForeground(true);
+
                 stopSelf();
             }
-            else{
-                Log.d("cancelserr","hh");
-            }
+
             String intentStringExtra = intent.getStringExtra("hello");
-            final int maxDays = Calendar.getInstance().getActualMaximum(Calendar.DATE);
+
 
             if (intentStringExtra != null && !intentStringExtra.isEmpty())
-                createNotification(intentStringExtra);
-            final SharedPreferences sharedPreferences = getSharedPreferences("alarams", MODE_PRIVATE);
-            Calendar alaramcalender = Calendar.getInstance();
-            final String string = new SimpleDateFormat("dd/MM/yyyy").format(alaramcalender.getTimeInMillis());
 
-            sharedPreferences.edit().putBoolean(string, true).apply();
+                createNotification(intentStringExtra);
+
+            final SharedPreferences sharedPreferences = getSharedPreferences(AppConstants.ALARAMSSHAREDPREFERENCES, MODE_PRIVATE);
+
+            Calendar alaramcalender = Calendar.getInstance();
+
+            final String todaysDate = new SimpleDateFormat(AppConstants.dateFormat, Locale.getDefault()).format(alaramcalender.getTimeInMillis());
+
+            final int todaysDay;
+
+            todaysDay = Integer.parseInt(todaysDate.split("/")[0]);
+
+            Log.d(TAG, "todaysDay " + todaysDay);
+
+            sharedPreferences.edit().putBoolean(todaysDate, true).apply();
+
             skyDatabase = SkyDatabase.getInstance(getApplicationContext());
 
 
             try {
-                final String lastFired = getSharedPreferences("alarams", MODE_PRIVATE).getString("lastFired",
-                        new SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().getTimeInMillis()));
-                Date lastFiredDate = new SimpleDateFormat("dd/MM/yyyy").parse(lastFired);
-                final int lastFiredDay = Integer.parseInt(new SimpleDateFormat("dd").format(lastFiredDate));
+                final String lastFired = getSharedPreferences(AppConstants.ALARAMSSHAREDPREFERENCES, MODE_PRIVATE)
+                        .getString(AppConstants.LASTFIREDVALUE,
+                                todaysDate);
 
-                Date date1 = new SimpleDateFormat("dd/MM/yyyy").parse(lastFired);
-                Date date2 = new SimpleDateFormat("dd/MM/yyyy").parse(new SimpleDateFormat("dd/MM/yyyy").
-                        format(Calendar.getInstance().getTimeInMillis()));
+
+                Date lastFiredDate = new SimpleDateFormat(AppConstants.dateFormat, Locale.getDefault()).parse(lastFired);
+
+                final int lastFiredDay = Integer.parseInt(new SimpleDateFormat("dd", Locale.getDefault()).format(lastFiredDate));
+                int lastFiredMonth = Integer.parseInt(new SimpleDateFormat("MM", Locale.getDefault()).format(lastFiredDate));
+                int lastFiredYear = Integer.parseInt(new SimpleDateFormat("yyyy", Locale.getDefault()).format(lastFiredDate));
+
+                Calendar maxDaysCalender = Calendar.getInstance();
+                maxDaysCalender.set(Calendar.YEAR,lastFiredYear);
+                if(lastFiredMonth>0)
+                maxDaysCalender.set(Calendar.MONTH,lastFiredMonth-1);
+                final int maxDays =maxDaysCalender.getActualMaximum(Calendar.DATE);
+                Date date1 = new SimpleDateFormat(AppConstants.dateFormat, Locale.getDefault()).parse(lastFired);
+
+                Date date2 = new SimpleDateFormat(AppConstants.dateFormat, Locale.getDefault()).parse(todaysDate);
+
                 long differenecInDays = Math.abs(date1.getTime() - date2.getTime());
-                final Long days = differenecInDays / (1000 * 60 * 60 * 24);
-                Log.d("yessdays", String.valueOf(days) + "  " + lastFired);
 
+                final Long differenceInDays = differenecInDays / (1000 * 60 * 60 * 24);
+
+                Log.d(TAG, "diffDays " + String.valueOf(differenceInDays) + "lastFired  " + lastFired);
+
+
+                if (differenceInDays == 0) {
+
+                    compareDay = Integer.parseInt(new SimpleDateFormat("dd", Locale.getDefault())
+                            .format(Calendar.getInstance().getTimeInMillis()));
+
+                    daysToIterate = daysToIterate + 1;
+                }
+
+
+                if (differenceInDays > 0) {
+
+                    daysToIterate = differenceInDays.intValue();
+                }
 
                 FirebaseDatabase.getInstance().getReference("Users").addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
                         Entity entity = dataSnapshot.getValue(Entity.class);
-                        Log.d("yessdays", "count " + (++countruntimes));
-                        list = skyDatabase.dao().getTotaldataNoLiveData();
-                        if (days == 0) {
-                            compareDay = Integer.valueOf(new SimpleDateFormat("dd")
-                                    .format(Calendar.getInstance().getTimeInMillis()));
-                            daysToIterate = daysToIterate + 1;
+                        if (differenceInDays > 0) {
+
+                            Log.d(TAG, "lastfired" + lastFired + "maxdays  " + maxDays);
+
+
+
+                            if ((maxDays == 30 && lastFiredDay == 30) || (maxDays == 31 && lastFiredDay == 31) || (maxDays == 29 && lastFiredDay == 29))
+
+                                compareDay = 1;
+
+                            else
+
+                                compareDay = lastFiredDay + 1;
+
+                            Log.d(TAG, "lastFired " + lastFired + "dayToCompare " + compareDay);
+
+
                         }
+
+                        Log.d(TAG, "counter " + (++countruntimes));
+
+                        //list = skyDatabase.dao().getTotaldataNoLiveData();
+
 
                         if (dataSnapshot.getChildrenCount() > 0) {
 
-                            Log.d("alaramfired", lastFired + "   " + dataSnapshot.getChildrenCount());
-                            if (days > 0) {
-                                Log.d("alaramfired", lastFired + "  " + entity.getName());
-                                if (maxDays == 30)
-                                    compareDay = 1;
-                                else
-                                    compareDay = lastFiredDay + 1;
-                                Log.d("alaramfired", lastFired + " " + compareDay);
-                                daysToIterate = days.intValue();
-                            }
+                            Log.d(TAG, "lastfired" + lastFired + "firebaseChildrenCount   " + dataSnapshot.getChildrenCount());
 
-                            dueDate = entity.getAccountCreatedOn();
-                            dueAmount = entity.getAmountDue();
-                            if (dueDate == null) {
-                                Log.d("printing1", entity.getName());
-                            }
 
-                            Date date = null;
+                            Date dueDateOfPerson = null;
+
                             try {
-                                date = new SimpleDateFormat("dd/MM/yyyy").parse(dueDate);
+
+                                dueDateOfPerson = new SimpleDateFormat(AppConstants.dateFormat, Locale.getDefault()).parse(entity.getAccountCreatedOn());
                             } catch (ParseException e) {
+
                                 e.printStackTrace();
                             }
-                            if (date == null) {
-                                Log.d("printing2", entity.getName());
+
+
+                            dueAmount = entity.getAmountDue();
+
+
+                            if (dueDateOfPerson == null) {
+
+                                Log.d(TAG, "dueDateNull" + entity.getName());
                             }
 
-                            int day = Integer.parseInt(new SimpleDateFormat("dd").format(date));
+                            int dueDyOfPerson = Integer.parseInt(new SimpleDateFormat("dd", Locale.getDefault()).format(dueDateOfPerson));
 
 
-                            sharedPreferences.edit().putString("lastFired", string).apply();
-                                FirebaseDatabase.getInstance().getReference().child("last").setValue(string);
+                            sharedPreferences.edit().putString(AppConstants.LASTFIREDVALUE, todaysDate).apply();
+
+                            FirebaseDatabase.getInstance().getReference().child("last").setValue(todaysDate);
+
                             for (int i = 0; i < daysToIterate; i++) {
 
-                                Log.d("alaramentered", String.valueOf(compareDay) + "  " + days);
+                                Log.d(TAG, "compareDay " + String.valueOf(compareDay) + "differenceInDays  " + differenceInDays);
 
-                                if (day ==
+                                if (dueDyOfPerson ==
                                         compareDay) {
-                                    Log.d("yessdays", "countamountin " + (++countamountinc));
-                                    Log.d("dueamountt", dueAmount + "  " + (dueAmount + entity.getNetPayablePrice()));
+
+                                    Log.d(TAG, "countamountin " + (++countamountinc));
+
+                                    Log.d(TAG, "sueAmount " + dueAmount + "increasedAmount  " + (dueAmount + entity.getNetPayablePrice()));
 
                                     dueAmount = dueAmount + entity.getNetPayablePrice();
 
                                     entity.setAmountDue(dueAmount);
 
-                                    entity.setLastUpdatedOn(string);
+                                    entity.setLastUpdatedOn(todaysDate);
 
-                                    Log.d("alaramenteredd", "indue");
-                                    Log.d("alaramenteredd", String.valueOf(dueAmount));
+                                    Log.d(TAG, "indue");
+
+                                    Log.d(TAG, "dueAmountAfterUpdate " + String.valueOf(dueAmount));
+
                                     updateEntity(entity);
 
-                                      FirebaseDatabase.getInstance().getReference("Users")
-                                          .child(entity.getFirebaseReferenceKey()).setValue(entity);
+                                    FirebaseDatabase.getInstance().getReference("Users")
+                                            .child(entity.getFirebaseReferenceKey()).setValue(entity);
 
 
-                                } //else stopSelf();
-                                //    Log.d("formatt", String.valueOf(entity.getId()) + "  " + list.get(list.size() - 1).getId());
+                                }
+                                if (differenceInDays != 0) {
 
-                                if (days != 0) {
-                                    if (compareDay == maxDays)
+                                    if (compareDay == maxDays) {
                                         compareDay = 1;
-                                    else
+                                    } else
                                         compareDay++;
                                 }
-//                                 if () {
-//                                     stopSelf();
-//                                 }
+//
 
 
                             }
@@ -253,6 +309,10 @@ public class Receiver extends BroadcastReceiver {
         private void createNotification(String s) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 notificationChannel = new NotificationChannel("hello", "Due date update ", NotificationManager.IMPORTANCE_HIGH);
+                NotificationManager notificationManager = (NotificationManager) getSystemService(NotificationManager.class);
+
+                notificationManager.createNotificationChannel(notificationChannel);
+
 
                 notificationChannel.setDescription("Updating due amount ...");
                 notificationChannel.enableLights(true);
@@ -265,10 +325,10 @@ public class Receiver extends BroadcastReceiver {
             builder.setAutoCancel(true);
             builder.setContentText("hey");
 
-            Intent stopSef = new Intent(this, Receiver.class);
+            Intent stopSef = new Intent(this, CountDaysService.class);
             stopSef.setAction("stop");
-            stopSef.putExtra("stop","stop");
-            PendingIntent pStopSelf = PendingIntent.getService(this, 0, stopSef, PendingIntent.FLAG_UPDATE_CURRENT);
+            stopSef.putExtra("stop", "stop");
+            PendingIntent pStopSelf = PendingIntent.getService(this, 0, stopSef, 0);
             builder.addAction(R.drawable.ic_search_black_24dp, "stop", pStopSelf);
 
             builder.setSmallIcon(R.drawable.common_google_signin_btn_icon_dark);
@@ -277,15 +337,7 @@ public class Receiver extends BroadcastReceiver {
                     (ContextCompat.getColor(this, R.color.colorAccent));
 
 
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                NotificationManager notificationManager = (NotificationManager) getSystemService(NotificationManager.class);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    notificationManager.createNotificationChannel(notificationChannel);
-                }
-
-                startForeground(1, builder.build());
-            }
+            startForeground(1, builder.build());
         }
 
         @Nullable
